@@ -1,5 +1,6 @@
 import { formatCliCommand } from "../cli/command-format.js";
 import type { PollInput } from "../polls.js";
+import { resolveProcessScopedMap } from "../shared/process-scoped-map.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 
 export type ActiveWebSendOptions = {
@@ -31,7 +32,7 @@ export type ActiveWebListener = {
 
 let _currentListener: ActiveWebListener | null = null;
 
-const listeners = new Map<string, ActiveWebListener>();
+const listeners = resolveProcessScopedMap<ActiveWebListener>(Symbol.for("openclaw.wa.listeners"));
 
 export function resolveWebAccountId(accountId?: string | null): string {
   return (accountId ?? "").trim() || DEFAULT_ACCOUNT_ID;
