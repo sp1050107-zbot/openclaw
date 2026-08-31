@@ -311,12 +311,20 @@ export async function monitorLineProvider(
 
   abortSignal?.addEventListener("abort", stopHandler);
 
-  return {
-    account: bot.account,
-    handleWebhook: bot.handleWebhook,
-    stop: () => {
+  return new Promise((resolve) => {
+    const onAbort = () => {
       stopHandler();
-      abortSignal?.removeEventListener("abort", stopHandler);
-    },
-  };
+      resolve({
+        account: bot.account,
+        handleWebhook: bot.handleWebhook,
+        stop: () => {},
+      });
+    };
+
+    if (abortSignal?.aborted) {
+      onAbort();
+    } else {
+      abortSignal?.addEventListener("abort", onAbort, { once: true });
+    }
+  });
 }
